@@ -1,60 +1,107 @@
-import React from 'react'
-import { useState } from 'react'
+import React, { useReducer } from 'react'
+import { Validate } from "./components/Validate"
+import { Welcome } from "./components/Welcome"
+
 const key = "saludandoAmoises"
-export default function App() {
-  const [isValid, setIsValid] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
-  const [value, setValue] = useState("")
 
-  function validateKey() {
-    setLoading(true)
-    setTimeout(() => {
-      try {
-        if (key !== value) {
-          throw { message: "Key incorrecta" }
-        }
-        setIsValid(true)
+const init = {
+  isValid: false,
+  loading: false,
+  error: false,
+  value: "",
+}
 
-      } catch (error) {
-        setError(true) 
-      } finally {
-        setValue("")
-        setLoading(false)
+const reduce = (state, action) => {
+  switch (action.type) {
+    case "LOADING":
+      return {
+        ...state,
+        loading: true
       }
+    case "VALIDATE_SUCCESS":
+      return {
+        ...state,
+        loading: false,
+        isValid: true,
+        value: ""
+      }
+    case "VALIDATE_ERROR":
+      return {
+        ...state,
+        loading: false,
+        error: true,
+        value: ""
+      }
+    case "CHANGE":
+      return {
+        ...state,
+        error: false,
+        value: action.payload
+      }
+    case "LOGOUT":
+      return {
+        ...state,
+        loading: false,
+        isValid: false
+      }
+    case "CANCEL":
+      return {
+        ...state,
+        value: ""
+      }
+    default:
+      return state
+  }
+
+
+}
+
+
+export default function App() {
+  
+  const [state, dispatch] = useReducer(reduce, init)
+ 
+  function validateKey() {
+    dispatch({ type: "LOADING" })
+    setTimeout(() => {
+
+      if (key !== state.value) {
+        dispatch({ type: "VALIDATE_ERROR" })
+        return;
+      }
+
+      dispatch({ type: "VALIDATE_SUCCESS" })
+
     }, 3000)
   }
 
   function onChange(e) {
-    setError(false)
-    setValue(e.target.value)
+    dispatch({type: "CHANGE", payload: e.target.value})
   }
 
   function onLogout() {
-    setLoading(true)
+    dispatch({type: "LOADING"})
     setTimeout(() => {
-
-      setIsValid(false)
-      setLoading(false)
+      dispatch({type: "LOGOUT"})
     }, 3000)
   }
 
   function onCancel() {
-    setValue("")
+    dispatch({type: "CANCEL"})
   }
 
   return (
     <>
-      {isValid ?
+      {state.isValid ?
         <Welcome
-          loading={loading}
+          loading={state.loading}
           onLogout={onLogout}
         />
         :
         <Validate
-          loading={loading}
-          error={error}
-          value={value}
+          loading={state.loading}
+          error={state.error}
+          value={state.value}
           onChange={onChange}
           onValdation={validateKey}
           onCancel={onCancel}
@@ -66,59 +113,5 @@ export default function App() {
 }
 
 
-export function Validate({ loading, error, onChange, value, onValdation, onCancel}) {
-
-  return (
-    <div className='w-full h-screen bg-slate-100 flex items-center justify-center'>
-
-      <div className='w-4/5  bg-white shadow-md py-8 rounded-md'>
-        <h1 className='text-center text-2xl font-bold'>Validation</h1>
-
-        <input
-          type="text"
-          placeholder='Type your key'
-          className='w-4/5 mx-auto flex mt-4 h-9 border rounded-md px-2 focus:bg-slate-100'
-          value={value}
-          onChange={onChange}
-        />
-
-        {loading &&
-          <p className='w-4/5 block mx-auto my-2'>Loading...</p>
-        }
-        {error &&
-          <p className='w-4/5 block mx-auto my-2 text-red-600'>Error: Key incorrecta</p>
-        }
 
 
-        <div className='flex w-4/5 mx-auto justify-end gap-8 pt-8'>
-          <button className='h-9 bg-red-600 px-3 rounded-md text-white font-semibold hover:bg-red-700 cursor-pointer' onClick={onCancel}>Cancelar</button>
-
-          <button className='h-9 bg-blue-600 px-3 rounded-md text-white font-semibold hover:bg-blue-700 cursor-pointer' onClick={onValdation}>Aceptar</button>
-        </div>
-
-      </div>
-
-    </div>
-  )
-}
-
-export function Welcome({ loading, onLogout }) {
-  return (
-    <div className='w-full h-screen bg-slate-100 flex items-center justify-center'>
-
-      <div className='w-4/5  bg-white shadow-md py-8 rounded-md'>
-        <h1 className='text-center text-2xl font-bold'>Welcom usuario</h1>
-
-        {loading &&
-          <p className='w-4/5 block mx-auto my-2'>Loading...</p>
-        }
-
-        <div className='flex w-4/5 mx-auto justify-end gap-8 pt-8'>
-          <button className='h-9 bg-blue-600 px-3 rounded-md text-white font-semibold hover:bg-blue-700 cursor-pointer' onClick={onLogout}>Cerrar session</button>
-        </div>
-
-      </div>
-
-    </div>
-  )
-}
