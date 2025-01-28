@@ -9,17 +9,17 @@ export default function App() {
 
   function validateKey() {
     setLoading(true)
-    setTimeout(() =>{
+    setTimeout(() => {
       try {
         if (key !== value) {
           throw { message: "Key incorrecta" }
         }
         setIsValid(true)
-  
+
       } catch (error) {
-        setError(true)
-        setValue("")
+        setError(true) 
       } finally {
+        setValue("")
         setLoading(false)
       }
     }, 3000)
@@ -30,11 +30,20 @@ export default function App() {
     setValue(e.target.value)
   }
 
+  function onLogout() {
+    setLoading(true)
+    setTimeout(() => {
+      setIsValid(false)
+      setLoading(false)
+    }, 3000)
+  }
+
   return (
     <>
       {isValid ?
         <Welcome
           loading={loading}
+          onLogout={onLogout}
         />
         :
         <Validate
@@ -87,7 +96,7 @@ export function Validate({ loading, error, onChange, value, onValdation }) {
   )
 }
 
-export function Welcome({ loading }) {
+export function Welcome({ loading, onLogout }) {
   return (
     <div className='w-full h-screen bg-slate-100 flex items-center justify-center'>
 
@@ -99,7 +108,7 @@ export function Welcome({ loading }) {
         }
 
         <div className='flex w-4/5 mx-auto justify-end gap-8 pt-8'>
-          <button className='h-9 bg-blue-600 px-3 rounded-md text-white font-semibold hover:bg-blue-700 cursor-pointer'>Cerrar session</button>
+          <button className='h-9 bg-blue-600 px-3 rounded-md text-white font-semibold hover:bg-blue-700 cursor-pointer' onClick={onLogout}>Cerrar session</button>
         </div>
 
       </div>
