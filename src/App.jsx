@@ -33,9 +33,14 @@ export default function App() {
   function onLogout() {
     setLoading(true)
     setTimeout(() => {
+
       setIsValid(false)
       setLoading(false)
     }, 3000)
+  }
+
+  function onCancel() {
+    setValue("")
   }
 
   return (
@@ -52,6 +57,7 @@ export default function App() {
           value={value}
           onChange={onChange}
           onValdation={validateKey}
+          onCancel={onCancel}
         />
       }
     </>
@@ -60,7 +66,7 @@ export default function App() {
 }
 
 
-export function Validate({ loading, error, onChange, value, onValdation }) {
+export function Validate({ loading, error, onChange, value, onValdation, onCancel}) {
 
   return (
     <div className='w-full h-screen bg-slate-100 flex items-center justify-center'>
@@ -85,7 +91,7 @@ export function Validate({ loading, error, onChange, value, onValdation }) {
 
 
         <div className='flex w-4/5 mx-auto justify-end gap-8 pt-8'>
-          <button className='h-9 bg-red-600 px-3 rounded-md text-white font-semibold hover:bg-red-700 cursor-pointer'>Cancelar</button>
+          <button className='h-9 bg-red-600 px-3 rounded-md text-white font-semibold hover:bg-red-700 cursor-pointer' onClick={onCancel}>Cancelar</button>
 
           <button className='h-9 bg-blue-600 px-3 rounded-md text-white font-semibold hover:bg-blue-700 cursor-pointer' onClick={onValdation}>Aceptar</button>
         </div>
